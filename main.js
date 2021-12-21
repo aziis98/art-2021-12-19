@@ -200,7 +200,7 @@ function update() {
 function render() {
   g.clearRect(0, 0, WIDTH, HEIGHT);
 
-  g.strokeStyle = '#e8e8e8';
+  g.strokeStyle = '#e4e4e4';
   g.lineWidth = 3;
 
   state.wires.forEach(wire => {
