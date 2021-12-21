@@ -67,6 +67,7 @@ const state = {
   wires: [], // :: [(Int, Int)]
   nextWire: null,
   nextWireIndex: 0,
+  nextSegmentLen: 0,
   t: 0,
 };
 
@@ -147,16 +148,37 @@ function generateWire() {
   return wire;
 }
 
-// LinearintERPolation
+// // LinearintERPolation
 function lerp(a, b, t) {
   return t * (b - a) + a;
 }
+function lerpPoint([x1, y1], [x2, y2], t) {
+  return [lerp(x1, x2, t), lerp(y1, y2, t)];
+}
+
+const CELLS_PER_SECOND = 4;
+
+let lastTime = new Date().getTime();
 
 function update() {
-  if (state.nextWire) {
-    state.nextWireIndex++;
+  const now = new Date().getTime();
+  const delta = (now - lastTime) / 1000;
+  lastTime = now;
 
-    if (state.nextWireIndex >= state.nextWire.length) {
+  if (state.nextWire) {
+    state.t += CELLS_PER_SECOND * delta;
+    
+    if (state.t >= 1.0) {
+      const [[x1, y1], [x2, y2]] = state.nextWire.slice(state.nextWireIndex - 2, state.nextWireIndex);
+      const dx = Math.abs(x2 - x1);
+      const dy = Math.abs(y2 - y1);
+      state.t = 0;
+      state.nextSegmentLen = Math.sqrt(dx * dx + dy * dy);
+
+      state.nextWireIndex++;
+    }
+
+    if (state.nextWireIndex > state.nextWire.length) {
       state.wires.push(state.nextWire);
       state.nextWire = null;
     }
@@ -165,6 +187,12 @@ function update() {
     if (wire) {
       state.nextWire = wire;
       state.nextWireIndex = 2;
+
+      const [[x1, y1], [x2, y2]] = state.nextWire.slice(state.nextWireIndex - 2, state.nextWireIndex);
+      const dx = Math.abs(x2 - x1);
+      const dy = Math.abs(y2 - y1);
+      state.t = 0;
+      state.nextSegmentLen = Math.sqrt(dx * dx + dy * dy);
     }
   }
 }
@@ -214,7 +242,15 @@ function render() {
   });
 
   if (state.nextWire) {
-    const wire = state.nextWire.slice(0, state.nextWireIndex);
+    const wirePart = state.nextWire.slice(0, state.nextWireIndex);
+    const wire = [
+      ...wirePart.slice(0, wirePart.length - 1), 
+      lerpPoint(
+        wirePart[wirePart.length - 2], 
+        wirePart[wirePart.length - 1],
+        state.t
+      )
+    ];
     const [[sx, sy], ...rest] = wire;
 
     function renderDot(x, y) {
@@ -262,4 +298,4 @@ render();
 
 setInterval(() => {
   update();
-}, 100);
+}, 1000 / 60);
