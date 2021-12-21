@@ -156,7 +156,7 @@ function lerpPoint([x1, y1], [x2, y2], t) {
   return [lerp(x1, x2, t), lerp(y1, y2, t)];
 }
 
-const CELLS_PER_SECOND = 4;
+const CELLS_PER_SECOND = 15;
 
 let lastTime = new Date().getTime();
 
