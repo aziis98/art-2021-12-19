@@ -50,18 +50,31 @@ function intersects(x1, y1, x2, y2, x3, y3, x4, y4) {
 }
 
 const $canvas = document.querySelector('canvas');
-const g = $canvas.getContext('2d');
+let g = $canvas.getContext('2d');
 
-const WIDTH = $canvas.offsetWidth;
-const HEIGHT = $canvas.offsetHeight;
-
-$canvas.width = WIDTH;
-$canvas.height = HEIGHT;
+let WIDTH = $canvas.offsetWidth;
+let HEIGHT = $canvas.offsetHeight;
 
 const TS = 20;
 
-const ROWS = HEIGHT / TS;
-const COLS = WIDTH / TS;
+let ROWS = HEIGHT / TS;
+let COLS = WIDTH / TS;
+
+function updateCanvasDimensions() {
+  g = $canvas.getContext('2d');
+
+  WIDTH = $canvas.offsetWidth;
+  HEIGHT = $canvas.offsetHeight;
+
+  ROWS = HEIGHT / TS;
+  COLS = WIDTH / TS;
+
+  $canvas.width = WIDTH;
+  $canvas.height = HEIGHT;
+}
+
+window.addEventListener('resize', () => updateCanvasDimensions());
+updateCanvasDimensions();
 
 const state = {
   wires: [], // :: [(Int, Int)]
